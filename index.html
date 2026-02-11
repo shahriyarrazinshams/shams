@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shams | Future Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --dark-bg: #050505;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #e0e0e0;
+            --text-dim: #a0a0a0;
+            --accent: #00d2ff;
+            --font-heading: 'Syncopate', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Preloader --- */
+        #loader {
+            position: fixed;
+            height: 100vh;
+            width: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+        }
+        .loader-content {
+            text-align: center;
+        }
+        .loader-bar {
+            width: min(200px, 60vw);
+            height: 2px;
+            background: var(--border);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-progress {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 2s ease;
+        }
+
+        /* --- Background Particles --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            filter: blur(1px);
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: clamp(15px, 3vw, 30px) clamp(20px, 5vw, 50px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            backdrop-filter: blur(8px);
+        }
+        .logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            letter-spacing: 5px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: clamp(15px, 2vw, 30px);
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* --- Sections --- */
+        section {
+            padding: clamp(60px, 10vh, 120px) 10%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+        }
+
+        /* --- Hero --- */
+        .hero {
+            align-items: center;
+            text-align: center;
+        }
+        .hero-img-container {
+            position: relative;
+            width: clamp(200px, 40vw, 260px);
+            height: clamp(200px, 40vw, 260px);
+            margin-bottom: 40px;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .hero-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 50px rgba(0, 210, 255, 0.3);
+        }
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 7vw, 4rem);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .hero p {
+            font-size: clamp(0.8rem, 2vw, 1.1rem);
+            letter-spacing: 4px;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* --- Section Titles --- */
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            margin-bottom: 60px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        /* --- Glass Cards --- */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(15px);
+            padding: clamp(20px, 5vw, 40px);
+            border-radius: 24px;
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+        .glass-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        /* --- Projects Grid --- */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: 30px;
+            width: 100%;
+        }
+        .project-card h3 {
+            font-family: var(--font-heading);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        /* --- Presence Grid --- */
+        .presence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        .presence-item {
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+        .presence-item:hover {
+            border-color: var(--primary);
+            background: rgba(0, 210, 255, 0.05);
+        }
+        .presence-item h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .presence-item ul {
+            list-style: none;
+        }
+        .presence-item ul li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .presence-item ul li a {
+            color: var(--text-main);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .presence-item ul li a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        /* --- Gaming Section --- */
+        .gaming-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+            gap: 30px;
+            align-items: center;
+        }
+        .gaming-card {
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(58, 123, 213, 0.1));
+            border: 1px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        .ign {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: var(--primary);
+            font-weight: 700;
+            margin: 15px 0;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+        }
+
+        /* --- Skills --- */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 15vw, 150px), 1fr));
+            gap: 20px;
+        }
+        .skill-item {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: clamp(20px, 4vw, 35px);
+            min-height: 140px;
+        }
+        .skill-item i {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .skill-item h3 {
+            margin: 0;
+            width: 100%;
+        }
+
+        /* --- Contact --- */
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+            gap: clamp(30px, 5vw, 60px);
+        }
+        input, textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            padding: 15px;
+            color: #fff;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            outline: none;
+            font-family: inherit;
+        }
+        .btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 15px 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.4s;
+            width: fit-content;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* --- Custom Popup Styles --- */
+        #custom-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 11000;
+        }
+        .popup-content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--primary);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+            animation: popupScale 0.3s ease-out;
+        }
+        @keyframes popupScale {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .popup-content i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        .popup-content p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        /* --- Scroll Reveal --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 40px 10%;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        .social-icons {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: clamp(15px, 3vw, 25px);
+        }
+        .social-icons a {
+            color: var(--primary);
+            font-size: 1.5rem;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .social-icons a:hover {
+            transform: translateY(-5px);
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 20px; }
+            .nav-links { display: none; }
+            section { padding: 80px 5%; }
+            .hero-img-container { width: 220px; height: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-content">
+            <h2 style="font-family: var(--font-heading); letter-spacing: 12px; color: #fff;">SHAMS</h2>
+            <div class="loader-bar"><div class="loader-progress" id="progress"></div></div>
+        </div>
+    </div>
+
+    <div id="custom-popup">
+        <div class="popup-content">
+            <i class="fas fa-check-circle"></i>
+            <p id="popup-msg"></p>
+            <button onclick="closePopup()" class="btn">OK</button>
+        </div>
+    </div>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <nav>
+        <a href="#" class="logo">SR SHAMS</a>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#presence">Online Presence</a>
+            <a href="#projects">Projects</a>
+            <a href="#gaming">Gaming</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-img-container reveal">
+            <img src="https://i.ibb.co/7xpsKtVc/IMG-20251011-175206-060.jpg" alt="Shahriar Razin Shams">
+        </div>
+        <p class="reveal">Student • Tech Explorer • Future Builder</p>
+        <h1 class="reveal">Shahriar Razin<br><span style="color: var(--primary);">Shams</span></h1>
+    </section>
+
+    <section id="about">
+        <h2 class="section-title reveal">Profile</h2>
+        <div class="glass-card reveal">
+            <p style="font-size: 1.3rem; margin-bottom: 25px; color: var(--primary); font-weight: 600;">Bangladeshi digital creator and blogger focused on technology, science, and personal growth.</p>
+            <p style="color: var(--text-dim); font-size: 1.1rem; margin-bottom: 20px;">I am a science student driven by Physics and Innovation. My work focuses on building a unified digital presence and contributing to open knowledge platforms.</p>
+            
+            <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 1rem; text-transform: uppercase;">Focus Areas</h3>
+            <ul style="color: var(--text-dim); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; list-style: none;">
+                <li><i class="fas fa-check-circle" style="color: var(--primary); margin-right: 10px;"></i>Digital identity & branding</li>
+                <li><i class="fas fa-check-circle" style="color: var(--primary); margin-right: 10px;"></i>Blogging</li>
+                <li><i class="fas fa-check-circle" style="color: var(--primary); margin-right: 10px;"></i>Photography</li>
+                <li><i class="fas fa-check-circle" style="color: var(--primary); margin-right: 10px;"></i>Science & Technology</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="presence">
+        <h2 class="section-title reveal">Digital Presence</h2>
+        <div class="presence-grid reveal">
+            <div class="presence-item">
+                <h4><i class="fas fa-pen-nib"></i> Blogging & Writing</h4>
+                <ul>
+                    <li><a href="https://shahriyarrazinshams.blogspot.com" target="_blank">Blog Site</a></li>
+                    <li><a href="https://medium.com/@ShahriyarRazinShams" target="_blank">Medium</a></li>
+                </ul>
+            </div>
+            <div class="presence-item">
+                <h4><i class="fas fa-brain"></i> Knowledge</h4>
+                <ul>
+                    <li><a href="https://www.wikidata.org/wiki/User:Shahriar_Razin_Shams" target="_blank">Wikidata</a></li>
+                    <li><a href="https://commons.wikimedia.org/wiki/User:Shahriar_Razin_Shams" target="_blank">Wikimedia Commons</a></li>
+                </ul>
+            </div>
+            <div class="presence-item">
+                <h4><i class="fas fa-shield-alt"></i> Authority</h4>
+                <ul>
+                    <li><a href="https://wikialpha.co/wiki/Shahriyar_Razin_Shams" target="_blank">WikiAlpha</a></li>
+                    <li><a href="https://www.crunchbase.com/person/shahriyar-razin-shams" target="_blank">Crunchbase</a></li>
+                </ul>
+            </div>
+            <div class="presence-item">
+                <h4><i class="fas fa-laptop-code"></i> Tech Profile</h4>
+                <ul>
+                    <li><a href="https://github.com/shahriyarrazinshams" target="_blank">GitHub</a></li>
+                    <li><a href="https://dev.to/shahriyarrazinshams" target="_blank">Dev.to</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="section-title reveal">Projects</h2>
+        <div class="project-grid">
+            <div class="glass-card project-card reveal">
+                <i class="fas fa-comment-dots" style="font-size: 2rem; color: var(--primary); margin-bottom: 20px;"></i>
+                <h3>Shams NanoTech Messaging</h3>
+                <p>A professional and secure messaging application designed with a focus on speed and minimal UI.</p>
+                <a href="https://github.com/shahriyarrazinshams/Shams-NanoTech-Messaging-App-v3/releases/download/v3/Shams_NanoTech_Messaging_App_v3.apk" class="download-btn">
+                    <i class="fas fa-download"></i> Download App
+                </a>
+            </div>
+
+            <div class="glass-card project-card reveal">
+                <i class="fas fa-moon" style="font-size: 2rem; color: var(--primary); margin-bottom: 20px;"></i>
+                <h3>Ramadan Tracker</h3>
+                <p>A comprehensive Ramadan dashboard tracker for 2026. Keep track of your daily progress.</p>
+                <a href="https://github.com/shahriyarrazinshams/Ramadan-2026-App/releases/download/V1/Ramadan.Tracker.apk" class="download-btn">
+                    <i class="fas fa-download"></i> Download App
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="gaming">
+        <h2 class="section-title reveal">Battle Station</h2>
+        <div class="gaming-grid">
+            <div class="glass-card gaming-card reveal">
+                <div class="game-info">
+                    <h3>Free Fire</h3>
+                    <p style="color: var(--text-dim);">Strategic Survivalist</p>
+                    <div class="ign">Frost᭄Blade</div>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">"Every match is a lesson in strategy and reflexes."</p>
+                </div>
+            </div>
+            <div class="reveal">
+                <h3 style="margin-bottom: 20px; font-family: var(--font-heading); font-size: 1.2rem;">Gaming Stats</h3>
+                <p style="color: var(--text-dim); margin-bottom: 15px;">When I'm not studying Physics, you can find me on the battlefield. I value team coordination and quick decision-making under pressure.</p>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); flex: 1; min-width: 140px;">
+                        <span style="display: block; color: var(--primary); font-weight: bold;">Role</span>
+                        <span>Rusher</span>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); flex: 1; min-width: 140px;">
+                        <span style="display: block; color: var(--primary); font-weight: bold;">Status</span>
+                        <span>Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <h2 class="section-title reveal">Abilities</h2>
+        <div class="skills-grid">
+            <div class="skill-item glass-card reveal"><i class="fab fa-html5"></i><h3>HTML</h3></div>
+            <div class="skill-item glass-card reveal"><i class="fab fa-css3-alt"></i><h3>CSS</h3></div>
+            <div class="skill-item glass-card reveal"><i class="fab fa-js"></i><h3>JS</h3></div>
+            <div class="skill-item glass-card reveal"><i class="fas fa-atom"></i><h3>Physics</h3></div>
+           </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title reveal">Contact</h2>
+        <div class="contact-container">
+            <div class="reveal">
+                <h3>Let's Build Something</h3>
+                <p style="margin: 20px 0; color: var(--text-dim);">Open for Collabrations, tech projects or even a game match!</p>
+                <div class="social-icons" style="justify-content: flex-start;">
+                    <a href="https://github.com/shahriyarrazinshams" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/shahriyar-razin-shams-a54981345" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://t.me/shams_878" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://www.instagram.com/shahriyarrazinshams" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://threads.net/@shams_0878" target="_blank"><i class="fas fa-at"></i></a>
+                    <a href="https://x.com/Sha_ms07" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100089845650883" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://youtube.com/@ShahriyarRazinShams" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.reddit.com/user/Ill_Mistake6871" target="_blank"><i class="fab fa-reddit"></i></a>
+                </div>
+            </div>
+            <div class="glass-card reveal">
+                <form id="contact-form">
+                    <input type="text" id="name" placeholder="Name" required>
+                    <input type="email" id="email" placeholder="Email" required>
+                    <textarea id="message" rows="4" placeholder="Message" required></textarea>
+                    <button type="submit" id="submit-btn" class="btn">Send</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Shahriar Razin Shams | Bangladesh</p>
+    </footer>
+
+    <script>
+        // --- Custom Popup Functions ---
+        function showPopup(msg) {
+            document.getElementById('popup-msg').innerText = msg;
+            document.getElementById('custom-popup').style.display = 'flex';
+        }
+        function closePopup() {
+            document.getElementById('custom-popup').style.display = 'none';
+        }
+
+        // --- Telegram Integration Config ---
+        const TELEGRAM_BOT_TOKEN = '8110299187:AAHvuEwVO5d1LqxuYETx4xjrUqcN0mxvPas';
+        const TELEGRAM_CHAT_ID = '7063296012';
+
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            btn.disabled = true;
+            btn.innerText = 'Sending...';
+
+            const text = `🚀 *New Portfolio Message*\n\n👤 *Name:* ${name}\n📧 *Email:* ${email}\n📝 *Message:* ${message}`;
+
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: text,
+                    parse_mode: 'Markdown'
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showPopup('ধন্যবাদ ! মেসেজটি সরাসরি আমার কাছে পৌঁছে গেছে।');
+                    document.getElementById('contact-form').reset();
+                } else {
+                    showPopup('কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+                }
+            })
+            .catch(error => {
+                showPopup('Connection error!');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = 'Send';
+            });
+        });
+
+        // --- Preloader ---
+        window.addEventListener('load', () => {
+            const progress = document.getElementById('progress');
+            progress.style.width = '100%';
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 1000);
+            }, 1500);
+        });
+
+        // --- Particles ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.2;
+                this.speedX = Math.random() * 0.4 - 0.2;
+                this.speedY = Math.random() * 0.4 - 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0; else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; else if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 210, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function createParticles() {
+            particles = [];
+            const count = window.innerWidth < 768 ? 40 : 100;
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', () => { initCanvas(); createParticles(); });
+        initCanvas(); createParticles(); animate();
+
+        // --- Scroll Reveal ---
+        function reveal() {
+            const reveals = document.querySelectorAll(".reveal");
+            reveals.forEach(r => {
+                const windowHeight = window.innerHeight;
+                const elementTop = r.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 100) r.classList.add("active");
+            });
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+    </script>
+</body>
+</html>
